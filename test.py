@@ -3,10 +3,57 @@ from room import Room
 from room import Robot
 
 class TestRobotMethods(unittest.TestCase):
-    # Test robot methods 
-
-
     # Test robot instructions
+
+    def test_init(self):
+        # Test init robot with valid values
+        robot = Robot((2,2))
+        self.assertIsNotNone(robot)
+        self.assertEqual(robot.direction, 0)
+        self.assertEqual(robot.position, (2,2))
+        self.assertEqual(robot.start_position, (2,2))
+
+        robot = Robot((-1,0))
+        self.assertIsNone(robot.position)
+
+    def test_get_position(self):
+        robot = Robot((2,2))
+        self.assertEqual(robot.get_position(), (2,2))
+
+    def test_get_start_position(self):
+        robot = Robot((2,2))
+        self.assertEqual(robot.get_start_position(), (2,2))
+        robot.set_position((10,10)) # Start position should not change
+        self.assertEqual(robot.get_start_position(), (2,2))
+
+    def test_get_direction(self):
+        robot = Robot((2,2))
+        self.assertEqual(robot.get_direction(), 0)
+        robot.direction = 1
+        self.assertEqual(robot.get_direction(), 1)
+
+    def test_get_direction_letter(self):
+        robot = Robot((2,2))
+        self.assertEqual(robot.get_direction_letter(), "N")
+        robot.direction = 1
+        self.assertEqual(robot.get_direction_letter(), "Ö")
+        robot.direction = 2
+        self.assertEqual(robot.get_direction_letter(), "S")
+        robot.direction = 3
+        self.assertEqual(robot.get_direction_letter(), "V")
+
+    def test_set_direction(self):
+        robot = Robot((2,2))
+        self.assertEqual(robot.get_direction(), 0)
+        robot.set_direction(1)
+        self.assertEqual(robot.get_direction(), 1)
+
+    def test_set_position(self):
+        robot = Robot((2,2))
+        self.assertEqual(robot.get_position(), (2,2))
+        robot.position = (5,5)
+        self.assertEqual(robot.get_position(), (5,5))
+
     def test_get_number_of_instr(self):
         robot = Robot((1,1))
         self.assertEqual(robot.get_number_of_instr(""), 0)
@@ -41,10 +88,34 @@ class TestRobotMethods(unittest.TestCase):
         self.assertEqual(robot.is_valid_instr(False), False)
         self.assertEqual(robot.is_valid_instr("RLRFB"), False)
         self.assertEqual(robot.is_valid_instr(""), False)
-
 class TestRoomMethods(unittest.TestCase):
     # Test room methods
     
+    def test_init(self):
+        # Test init valid rectangular room
+        room = Room((10,9), "R")
+        self.assertIsNotNone(room)
+        self.assertEqual(room.get_size(), (10,9))
+        self.assertEqual(room.get_shape(), "R")
+
+        # Test init valid circular room
+        room = Room((10), "C")
+        self.assertIsNotNone(room)
+        self.assertEqual(room.get_size(), (10))
+        self.assertEqual(room.get_shape(), "C")
+
+        # Test init room with invalid shape
+        room = Room((10,9), "P")
+        self.assertIsNotNone(room)
+        self.assertEqual(room.get_size(), None)
+        self.assertEqual(room.get_shape(), None)
+
+        # Test init room with invalid size
+        room = Room((-10,9), "R")
+        self.assertIsNotNone(room)
+        self.assertEqual(room.get_size(), None)
+        self.assertEqual(room.get_shape(), "R")
+
     def test_get_start_position(self):
         robot = Robot((1,1))
         room = Room((10,9), "R")
@@ -58,33 +129,38 @@ class TestRoomMethods(unittest.TestCase):
         room = Room((10,9), "R")
 
         # Test valid coordinates for square room
-        self.assertEqual(room.contains((1,2)), True)
-        self.assertEqual(room.contains((9,8)), True)
-        self.assertEqual(room.contains((0,0)), True)
+        self.assertTrue(room.contains((1,2)))
+        self.assertTrue(room.contains((9,8)))
+        self.assertTrue(room.contains((0,0)))
 
         # Test invalid coordinates for square room
-        self.assertEqual(room.contains((100,2)), False)
-        self.assertEqual(room.contains((2,11)), False)
-        self.assertEqual(room.contains((-1,2)), False)
-        self.assertEqual(room.contains((2,-1)), False)
-        self.assertEqual(room.contains((8,9)), False)
+        self.assertFalse(room.contains((100,2)))
+        self.assertFalse(room.contains((2,11)))
+        self.assertFalse(room.contains((-1,2)))
+        self.assertFalse(room.contains((2,-1)))
+        self.assertFalse(room.contains((8,9)))
 
         # Test valid coordinates for circular room
         room = Room(10, "C")
-        self.assertEqual(room.contains((1,2)), True)
-        self.assertEqual(room.contains((-1,2)), True)
-        self.assertEqual(room.contains((2,-1)), True)
-        self.assertEqual(room.contains((6,-6)), True)
-        self.assertEqual(room.contains((-6,-6)), True)
-        self.assertEqual(room.contains((-6,6)), True)
-        self.assertEqual(room.contains((7,5)), True)
+        self.assertTrue(room.contains((1,2)))
+        self.assertTrue(room.contains((-1,2)))
+        self.assertTrue(room.contains((2,-1)))
+        self.assertTrue(room.contains((6,-6)))
+        self.assertTrue(room.contains((-6,-6)))
+        self.assertTrue(room.contains((-6,6)))
+        self.assertTrue(room.contains((7,5)))
 
         # Test invalid coordinates for circular room
-        self.assertEqual(room.contains((100,2)), False)
-        self.assertEqual(room.contains((2,11)), False)
-        self.assertEqual(room.contains((9,10)), False)
-        self.assertEqual(room.contains((5,-8)), False)
-        self.assertEqual(room.contains((-9,-3)), False)
+        self.assertFalse(room.contains((100,2)))
+        self.assertFalse(room.contains((2,11)))
+        self.assertFalse(room.contains((9,10)))
+        self.assertFalse(room.contains((5,-8)))
+        self.assertFalse(room.contains((-9,-3)))
+
+        # Test valid coordinates for circular room (size 1)
+        room = Room(1, "C")
+        self.assertTrue(room.contains((0,0)))
+        self.assertFalse(room.contains((1,0)))
 
     def test_get_size(self):
         room = Room((10,9), "R")
@@ -103,7 +179,7 @@ class TestRoomMethods(unittest.TestCase):
         self.assertEqual(room.get_size(), (4))
 
         # Test incorrect room size (circular room)
-        self.assertNotEqual(room.get_size(), (9))
+        self.assertNotEqual(room.get_size(), (-4))
         self.assertNotEqual(room.get_size(), (-10))
 
     def test_set_size(self):
@@ -128,7 +204,7 @@ class TestRoomMethods(unittest.TestCase):
         room.set_shape("C")
         room.set_size(10)
         self.assertEqual(room.get_size(), (20))
-        room.set_size(8,8)
+        room.set_size(8,8) # Only checks first position for size when circular room
         self.assertEqual(room.get_size(), (16))
 
     def test_set_shape(self):

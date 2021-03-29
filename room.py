@@ -11,11 +11,13 @@ class Room:
             if shape is "R":
                 if size[0] > 0 and size[1] > 0:
                     self.size = size
+                else:
+                    print("Error: given size is illegal.")
             elif shape is "C":
                 if size > 0:
                     self.size = size
-            else:
-                print("Error: given size is illegal.")
+                else:
+                    print("Error: given size is illegal.")
         else:
             print("Error: given shape is illegal.")
         self.robot = None
@@ -69,7 +71,8 @@ class Room:
         return self.size
 
     def set_size(self, x, y=None):
-    # Set the size of the room. Must be positive integers.
+    # Set the size of the room. Must be positive integers. 
+    # If circular room, the size is doubled since the given x is the radius.
         if self.get_shape() is "R":
             if (x <= 0) or (y <= 0):
                 print("New size of room too small, must be positive integers.")
@@ -155,6 +158,7 @@ class Room:
                     else:
                         print("Error: Illegal instructions given.")
                         result = False
+                print("Robot's position and direction: " + str(robot.get_position()) + " " + robot.get_direction_letter())
             else:
                 print("Error: Illegal instructions given.")
                 result = False
@@ -163,11 +167,18 @@ class Room:
             result = False
         return result
 
+
 class Robot:
     # The robot always faces north (N) at the start. It needs a start position (x,y).
     def __init__(self, start_position):
         self.direction = 0
-        self.position = start_position
+        self.position = None
+
+        if start_position[0] >= 0 and start_position[1] >= 0:
+                self.position = start_position
+        else:
+            print("Error: The given start position is invalid")
+
         self.start_position = start_position
 
     def get_position(self):
@@ -179,12 +190,25 @@ class Robot:
         return self.start_position
     
     def get_direction(self):
-    # Return the direction ("N" north, "Ö" east, "S" south, "V" west) of the robot
+    # Return the direction ("N" north: 0, "Ö" east: 1, "S" south: 2, "V" west: 3) of the robot as a number
         return self.direction
     
     def set_direction(self, direction):
     # Set the direction ("N" north, "Ö" east, "S" south, "V" west) of the robot
         self.direction = direction
+
+    def get_direction_letter(self):
+    # Return the direction ("N" north: 0, "Ö" east: 1, "S" south: 2, "V" west: 3) of the robot as a letter
+        direction_text = "N"
+        if self.get_direction() is 1:
+            direction_text = "Ö"
+        elif self.get_direction() is 2:
+            direction_text = "S"
+        elif self.get_direction() is 3:
+            direction_text = "V"
+        else:
+            print("Error")
+        return direction_text
 
     def set_position(self, position):
     # Set the position (x,y) of the robot
@@ -248,5 +272,18 @@ class Robot:
         return result
 
 
+def main():
+    robot = Robot((1,2))
+    room = Room((5,5), "R")
+    room.set_robot(robot)
+    room.control_robot("HGHGGHGHG") # Should print (1, 3) N
 
+    robot = Robot((0,0))
+    room = Room((10), "C")
+    room.set_robot(robot)
+    room.control_robot("RRFLFFLRF")
+
+
+if __name__ == "__main__":
+    main()
 
