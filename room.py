@@ -281,7 +281,7 @@ def main():
     robot = Robot((0,0))
     room = Room((10), "C")
     room.set_robot(robot)
-    room.control_robot("RRFLFFLRF")
+    room.control_robot("RRFLFFLRF") # Should print (3, 1) Ö
 
 
 if __name__ == "__main__":
